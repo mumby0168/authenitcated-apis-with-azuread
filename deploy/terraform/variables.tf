@@ -7,9 +7,10 @@ variable "location" {
 
 variable "env_code" {
   type    = string
-  
+  default = "dev"
+
   validation {
-    condition = contains(["dev", "preprod", "prod"], var.env_code)
+    condition     = contains(["dev", "preprod", "prod"], var.env_code)
     error_message = "Value must be dev, preprod or prod"
   }
 }
