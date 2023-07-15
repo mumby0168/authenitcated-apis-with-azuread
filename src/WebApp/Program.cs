@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -32,6 +33,20 @@ try
 
                 options.CallbackPath = "/signin-azuread";
             });
+    
+    
+    // To allow a docker image hosted on http to pass the original https URI to azure ad
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                                   ForwardedHeaders.XForwardedProto;
+
+        // Only loopback proxies are allowed by default.
+        // Clear that restriction because forwarders are enabled by explicit
+        // configuration.
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
 
 
     builder.Services.AddAuthorization(

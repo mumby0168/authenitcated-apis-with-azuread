@@ -85,7 +85,7 @@ resource "azurerm_linux_web_app" "webapp" {
     always_on = true
     application_stack {
       docker_registry_url = "https://index.docker.io/v1"
-      docker_image_name   = "billymumby/addemowebapp:latest"
+      docker_image_name   = "billymumby/addemowebapp:1.0.0"
     }
   }
 
