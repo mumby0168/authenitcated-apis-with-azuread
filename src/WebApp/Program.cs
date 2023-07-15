@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,14 @@ builder.Services.AddAuthentication(
 
         options.CallbackPath = "/signin-azuread";
     });
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 // Add services to the container.
 builder.Services.AddRazorPages();

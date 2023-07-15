@@ -22,7 +22,7 @@ public class IndexModel : PageModel
 
         if (result.Succeeded)
         {
-            RedirectToPage("/Details");
+            return RedirectToPage("/Details");
         }
         
         return Challenge(
