@@ -24,6 +24,20 @@ public class IndexModel : PageModel
         {
             return RedirectToPage("/Details");
         }
+
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPost()
+    {
+        var result = await _authenticationService.AuthenticateAsync(
+            HttpContext,
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        if (result.Succeeded)
+        {
+            return RedirectToPage("/Details");
+        }
         
         return Challenge(
             new AuthenticationProperties

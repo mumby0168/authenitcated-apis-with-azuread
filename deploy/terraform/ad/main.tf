@@ -1,48 +1,3 @@
-resource "azurerm_resource_group" "azure_ad_auth" {
-  name     = "rg-${var.project}-${var.env_code}-${var.location_code}"
-  location = var.location
-}
-
-resource "azurerm_service_plan" "azure_ad_auth" {
-  name                = "asp-${var.project}-${var.env_code}-${var.location_code}"
-  resource_group_name = azurerm_resource_group.azure_ad_auth.name
-  location            = azurerm_resource_group.azure_ad_auth.location
-  os_type             = "Linux"
-  sku_name            = "B1"
-}
-
-# API =======================================================================================================
-
-resource "azurerm_user_assigned_identity" "api" {
-  resource_group_name = azurerm_resource_group.azure_ad_auth.name
-  location            = azurerm_resource_group.azure_ad_auth.location
-  name                = "uai-${var.project}-api-${var.env_code}-${var.location_code}"
-}
-
-resource "azurerm_linux_web_app" "api" {
-  name                = "app-${var.project}-api-${var.env_code}-${var.location_code}"
-  resource_group_name = azurerm_resource_group.azure_ad_auth.name
-  location            = azurerm_service_plan.azure_ad_auth.location
-  service_plan_id     = azurerm_service_plan.azure_ad_auth.id
-
-  site_config {
-    always_on = true
-    application_stack {
-      docker_image     = "mcr/hello-world"
-      docker_image_tag = "latest"
-    }
-  }
-
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.api.id]
-  }
-
-  app_settings = {
-    "AZURE_CLIENT_ID" = azurerm_user_assigned_identity.api.client_id
-  }
-}
-
 resource "random_uuid" "api_scope" {}
 resource "random_uuid" "api_all_role_id" {}
 
@@ -79,15 +34,7 @@ resource "azuread_service_principal" "api" {
   app_role_assignment_required = true
 }
 
-# This grants permission for the packing dashboard to call the prompts service with the Api.All role.
-resource "azuread_app_role_assignment" "webappaccess_to_prompts_service" {
-  app_role_id         = azuread_application.api.app_role_ids["Api.All"]
-  principal_object_id = azurerm_user_assigned_identity.webapp.principal_id
-  resource_object_id  = azuread_service_principal.api.object_id
-}
-
-
-# webapp =======================================================================================================
+# web app 
 
 resource "random_uuid" "webappreader_role_id" {}
 resource "random_uuid" "webappcontributor_role_id" {}
@@ -163,34 +110,5 @@ resource "azuread_application" "webapp" {
     display_name         = "Owner"
     id                   = random_uuid.webappowner_role_id.result
     value                = "Owner"
-  }
-}
-
-resource "azurerm_user_assigned_identity" "webapp" {
-  resource_group_name = azurerm_resource_group.azure_ad_auth.name
-  location            = azurerm_resource_group.azure_ad_auth.location
-  name                = "uai-${var.project}-webapp-${var.env_code}-${var.location_code}"
-}
-
-resource "azurerm_linux_web_app" "webapp" {
-  name                = "app-${var.project}-webapp-${var.env_code}-${var.location_code}"
-  resource_group_name = azurerm_resource_group.azure_ad_auth.name
-  location            = azurerm_service_plan.azure_ad_auth.location
-  service_plan_id     = azurerm_service_plan.azure_ad_auth.id
-
-  site_config {
-    always_on = true
-    application_stack {
-      docker_image_name = "billymumby/addemowebapp:0.0.0"
-    }
-  }
-
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.webapp.id]
-  }
-
-  app_settings = {
-    "AZURE_CLIENT_ID" = azurerm_user_assigned_identity.webapp.client_id
   }
 }

@@ -1,13 +1,59 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace WebApp.Pages;
 
 [Authorize]
-public class Details : PageModel
+public class DetailsModel : PageModel
 {
-    public void OnGet()
+    private readonly IConfiguration _configuration;
+
+    public DetailsModel(IConfiguration configuration)
     {
+        _configuration = configuration;
+    }
+    
+    public string? MessageForAuthenticatedUser { get; set; }
+    
+    public string? MessageForAuthenticatedUserWithUserRole { get; set; }
+    
+    public string? MessageForAuthenticatedUserWithAdminRole { get; set; }
+
+    public async Task<IActionResult> OnGet()
+    {
+        var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        if (!result.Succeeded)
+        {
+            return RedirectToPage("/");
+        }
         
+        MessageForAuthenticatedUser = $"Hello {result.Principal.Identity?.Name}";
+        
+        if(result.Principal.IsInRole("User"))
+        {
+            if (_configuration.GetValue<bool>("IsDownstreamApiEnabled"))
+            {
+                throw new NotImplementedException();
+            }
+
+            MessageForAuthenticatedUserWithUserRole = "You are in the User role";
+
+        }
+        
+        if(result.Principal.IsInRole("Admin"))
+        {
+            if (_configuration.GetValue<bool>("IsDownstreamApiEnabled"))
+            {
+                throw new NotImplementedException();
+            }
+
+            MessageForAuthenticatedUserWithAdminRole = "You are in the Admin role";
+        }
+
+        return Page();
     }
 }

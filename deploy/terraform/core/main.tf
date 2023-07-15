@@ -28,15 +28,14 @@ resource "azurerm_linux_web_app" "api" {
   site_config {
     always_on = true
     application_stack {
-      docker_image_name   = "mcr/hello-world"
-      docker_registry_url = "https://mcr.microsoft.com"
+      docker_image_name = "billymumby/addemoapi:latest"
     }
   }
 
   logs {
     application_logs {
       file_system_level = "Verbose"
-      
+
     }
   }
 
@@ -46,7 +45,8 @@ resource "azurerm_linux_web_app" "api" {
   }
 
   app_settings = {
-    "AZURE_CLIENT_ID" = azurerm_user_assigned_identity.api.client_id
+    "AZURE_CLIENT_ID"            = azurerm_user_assigned_identity.api.client_id
+    "DOCKER_REGISTRY_SERVER_URL" = "https://index.docker.io/v1"
   }
 }
 
@@ -84,8 +84,8 @@ resource "azurerm_linux_web_app" "webapp" {
   site_config {
     always_on = true
     application_stack {
-      docker_registry_url = "https://registry.hub.docker.com"
-      docker_image_name   = "billymumby/addemowebapp:0.0.0"
+      docker_registry_url = "https://index.docker.io/v1"
+      docker_image_name   = "billymumby/addemowebapp:latest"
     }
   }
 
@@ -95,6 +95,7 @@ resource "azurerm_linux_web_app" "webapp" {
   }
 
   app_settings = {
-    "AZURE_CLIENT_ID" = azurerm_user_assigned_identity.webapp.client_id
+    "AZURE_CLIENT_ID"            = azurerm_user_assigned_identity.webapp.client_id
+    "DOCKER_REGISTRY_SERVER_URL" = "https://index.docker.io/v1"
   }
 }
