@@ -181,8 +181,7 @@ resource "azurerm_linux_web_app" "webapp" {
   site_config {
     always_on = true
     application_stack {
-      docker_image     = "mcr/hello-world:latest"
-      docker_image_tag = "latest"
+      docker_image_name = "billymumby/addemowebapp:0.0.0"
     }
   }
 
