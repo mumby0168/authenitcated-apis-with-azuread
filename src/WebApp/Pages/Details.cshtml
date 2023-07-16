@@ -1,0 +1,17 @@
+@page
+@model DetailsModel
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Details</h1>
+</div>
+
+@if (Model.MessageForAuthenticatedUser is not null)
+{
+    <div
+        class="text-center">
+        <h4>@Model.MessageForAuthenticatedUser</h4>
+    </div>   
+}

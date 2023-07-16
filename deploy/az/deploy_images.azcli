@@ -1,0 +1,1 @@
+az webapp config container set --name app-azureadapiauth-api-dev-euw --resource-group rg-azureadapiauth-dev-euw --docker-custom-image-name billymumby/addemowebapp:0.0.1  --docker-registry-server-url https://docker.io
