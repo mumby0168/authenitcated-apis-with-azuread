@@ -61,6 +61,16 @@ try
     builder.Services.AddRazorPages();
 
     var app = builder.Build();
+    
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseExceptionHandler("/Error");
+        app.UseHsts();
+    }
+
+    app.UseForwardedHeaders();
+
+    app.UseHttpsRedirection();
 
     app.UseStaticFiles();
 

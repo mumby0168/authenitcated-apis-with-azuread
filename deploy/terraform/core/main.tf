@@ -83,10 +83,6 @@ resource "azurerm_linux_web_app" "webapp" {
 
   site_config {
     always_on = true
-    application_stack {
-      docker_registry_url = "https://index.docker.io/v1"
-      docker_image_name   = "billymumby/addemowebapp:1.0.0"
-    }
   }
 
   identity {
@@ -97,5 +93,6 @@ resource "azurerm_linux_web_app" "webapp" {
   app_settings = {
     "AZURE_CLIENT_ID"            = azurerm_user_assigned_identity.webapp.client_id
     "DOCKER_REGISTRY_SERVER_URL" = "https://index.docker.io/v1"
+    "DOCKER_CUSTOM_IMAGE_NAME"   = "billymumby/addemowebapp:1.1.0"
   }
 }
