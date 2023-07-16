@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.AppConfig;
+using WebApp.Services;
 
 namespace WebApp.Pages;
 
@@ -12,11 +13,14 @@ namespace WebApp.Pages;
 public class DetailsModel : PageModel
 {
     private readonly IConfiguration _configuration;
+    private readonly IDownstreamApiService _downstreamApiService;
 
     public DetailsModel(
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IDownstreamApiService downstreamApiService)
     {
         _configuration = configuration;
+        _downstreamApiService = downstreamApiService;
     }
 
     public string? MessageForAuthenticatedUser { get; set; }
@@ -33,8 +37,15 @@ public class DetailsModel : PageModel
         {
             return RedirectToPage("/");
         }
-
-        MessageForAuthenticatedUser = $"Hello {result.Principal.Identity?.Name}";
+        
+        if (_configuration.GetValue<bool>("DownstreamApi:IsEnabled"))
+        {
+            MessageForAuthenticatedUser = await _downstreamApiService.CallWebApiForUserAsync();
+        }
+        else
+        {
+            MessageForAuthenticatedUser = $"Hello {result.Principal.Identity?.Name}";    
+        }
 
         if (result.Principal.IsInRole("User"))
         {

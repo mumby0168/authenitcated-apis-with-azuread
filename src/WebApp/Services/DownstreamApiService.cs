@@ -21,11 +21,16 @@ class DownstreamApiService : IDownstreamApiService
         _configuration = configuration;
     }
     
-    public Task<string> CallWebApiForUserAsync(
-        string accessToken,
-        string downstreamApi)
+    public async Task<string> CallWebApiForUserAsync()
     {
-        throw new NotImplementedException();
+        var result = await AuthenticatedRequest(() => _client.GetAsync("api/v1/default"));
+        
+        if (result.IsSuccessStatusCode)
+        {
+            return await result.Content.ReadAsStringAsync();
+        }
+
+        return $"Failed to call downstream api status code: {result.StatusCode} and response body: {await result.Content.ReadAsStringAsync()}";
     }
     
     internal async Task<HttpResponseMessage> AuthenticatedRequest(Func<Task<HttpResponseMessage>> execute)

@@ -1,34 +1,58 @@
+using Api.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Identity.Web;
+using Serilog;
 
-var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .CreateLogger();
 
-builder.Services.AddAuthorization(
-    options =>
-    {
-        options.DefaultPolicy = new AuthorizationPolicyBuilder()
-            .RequireAuthenticatedUser()
-            .Build();
-    });
+Log.Information("Starting .NET web host");
 
-var app = builder.Build();
+try
+{
+    var builder = WebApplication.CreateBuilder(args);
 
-app.UseHttpsRedirection();
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddMicrosoftIdentityWebApi(builder.Configuration.GetSection("AzureAd"));
 
-app.UseAuthentication();
-app.UseAuthorization();
+    builder.Services.AddAuthorization(
+        options =>
+        {
+            options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                .RequireAuthenticatedUser()
+                .Build();
+        });
 
-app.MapGet(
-    "/",
-    () => "Azure AD Auth Web API");
+    var app = builder.Build();
 
-app.MapGet(
-    "api/v1/default",
-    () => $"This is the default message {DateTime.UtcNow}")
-    .RequireAuthorization();
+    app.UseHttpsRedirection();
 
-app.Run();
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapGet(
+        "/",
+        (
+            IConfiguration configuration) => $"Azure AD Auth Web API - {configuration.GetDockerImage()}");
+
+    app.MapGet(
+            "api/v1/default",
+            () => $"This is the default message {DateTime.UtcNow}")
+        .RequireAuthorization();
+
+    app.Run();
+}
+catch (Exception e)
+{
+    Log.Error(
+        e,
+        ".NET Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}

@@ -102,3 +102,7 @@ catch (Exception e)
         e,
         ".NET Host terminated unexpectedly");
 }
+finally
+{
+    Log.CloseAndFlush();
+}

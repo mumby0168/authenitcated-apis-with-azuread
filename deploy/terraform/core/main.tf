@@ -95,10 +95,10 @@ resource "azurerm_linux_web_app" "webapp" {
   app_settings = {
     "AZURE_CLIENT_ID"            = azurerm_user_assigned_identity.webapp.client_id
     "DOCKER_REGISTRY_SERVER_URL" = "https://index.docker.io/v1"
-    "DOCKER_CUSTOM_IMAGE_NAME"   = "billymumby/addemowebapp:1.2.0"
+    "DOCKER_CUSTOM_IMAGE_NAME"   = "billymumby/addemowebapp:1.3.0"
     "DownstreamApi__BaseUrl"     = "https://app-${var.project}-api-${var.env_code}-${var.location_code}.azurewebsites.net"
     "DownstreamApi__Scope"       = "api://azure-ad-auth-api-${var.env_code}.net/api_access"
-    "DownstreamApi__IsEnabled"    = "True"
+    "DownstreamApi__IsEnabled"   = "True"
 
   }
 }
