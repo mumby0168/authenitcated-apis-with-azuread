@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Identity.Client;
+using Microsoft.Identity.Client.AppConfig;
 
 namespace WebApp.Pages;
 
@@ -11,15 +13,16 @@ public class DetailsModel : PageModel
 {
     private readonly IConfiguration _configuration;
 
-    public DetailsModel(IConfiguration configuration)
+    public DetailsModel(
+        IConfiguration configuration)
     {
         _configuration = configuration;
     }
-    
+
     public string? MessageForAuthenticatedUser { get; set; }
-    
+
     public string? MessageForAuthenticatedUserWithUserRole { get; set; }
-    
+
     public string? MessageForAuthenticatedUserWithAdminRole { get; set; }
 
     public async Task<IActionResult> OnGet()
@@ -30,23 +33,22 @@ public class DetailsModel : PageModel
         {
             return RedirectToPage("/");
         }
-        
+
         MessageForAuthenticatedUser = $"Hello {result.Principal.Identity?.Name}";
-        
-        if(result.Principal.IsInRole("User"))
+
+        if (result.Principal.IsInRole("User"))
         {
-            if (_configuration.GetValue<bool>("IsDownstreamApiEnabled"))
+            if (_configuration.GetValue<bool>("DownstreamApi:IsEnabled"))
             {
                 throw new NotImplementedException();
             }
 
             MessageForAuthenticatedUserWithUserRole = "You are in the User role";
-
         }
-        
-        if(result.Principal.IsInRole("Admin"))
+
+        if (result.Principal.IsInRole("Admin"))
         {
-            if (_configuration.GetValue<bool>("IsDownstreamApiEnabled"))
+            if (_configuration.GetValue<bool>("DownstreamApi:IsEnabled"))
             {
                 throw new NotImplementedException();
             }
