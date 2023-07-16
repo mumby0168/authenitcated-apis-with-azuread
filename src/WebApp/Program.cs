@@ -1,20 +1,32 @@
+using Azure.Identity;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Serilog;
+using WebApp.Services;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
     .WriteTo.Console()
     .CreateLogger();
 
-Log.Information("Starting .NET  web host");
+Log.Information("Starting .NET web host");
 
 try
 {
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Services.AddLogging();
+
+    builder.Services.AddSingleton(new DefaultAzureCredential());
+
+    builder.Services.AddHttpClient<IDownstreamApiService, DownstreamApiService>(
+        client =>
+        {
+            client.BaseAddress = new Uri(
+                builder.Configuration.GetValue<string>("DownstreamApi:BaseUrl") ??
+                throw new InvalidOperationException("Please provider a downstream api base url"));
+        });
 
     builder.Services.AddAuthentication(
             options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; })
@@ -33,20 +45,21 @@ try
 
                 options.CallbackPath = "/signin-azuread";
             });
-    
-    
-    // To allow a docker image hosted on http to pass the original https URI to azure ad
-    builder.Services.Configure<ForwardedHeadersOptions>(options =>
-    {
-        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
-                                   ForwardedHeaders.XForwardedProto;
 
-        // Only loopback proxies are allowed by default.
-        // Clear that restriction because forwarders are enabled by explicit
-        // configuration.
-        options.KnownNetworks.Clear();
-        options.KnownProxies.Clear();
-    });
+
+    // To allow a docker image hosted on http to pass the original https URI to azure ad
+    builder.Services.Configure<ForwardedHeadersOptions>(
+        options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor |
+                                       ForwardedHeaders.XForwardedProto;
+
+            // Only loopback proxies are allowed by default.
+            // Clear that restriction because forwarders are enabled by explicit
+            // configuration.
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
 
 
     builder.Services.AddAuthorization(
@@ -61,7 +74,7 @@ try
     builder.Services.AddRazorPages();
 
     var app = builder.Build();
-    
+
     if (!app.Environment.IsDevelopment())
     {
         app.UseExceptionHandler("/Error");
@@ -82,9 +95,14 @@ try
     app.MapRazorPages();
 
     app.Run();
-
 }
 catch (Exception e)
 {
-    Log.Error(e, ".NET Host terminated unexpectedly");
+    Log.Error(
+        e,
+        ".NET Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
 }

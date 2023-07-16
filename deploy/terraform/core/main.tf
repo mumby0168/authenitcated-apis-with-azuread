@@ -44,7 +44,11 @@ resource "azurerm_linux_web_app" "api" {
   app_settings = {
     "AZURE_CLIENT_ID"            = azurerm_user_assigned_identity.api.client_id
     "DOCKER_REGISTRY_SERVER_URL" = "https://index.docker.io/v1"
-    "DOCKER_CUSTOM_IMAGE_NAME"   = "billymumby/addemoapi:latest"
+    "DOCKER_CUSTOM_IMAGE_NAME"   = "billymumby/addemoapi:0.0.1"
+    "AzureAd__ClientId"          = data.azuread_application.api.application_id
+    "AzureAd__Authority"         = "api://azure-ad-auth-api-${var.env_code}.net"
+    "AzureAd__TenantId"          = data.azurerm_client_config.current.tenant_id
+    "AzureAd__Instance"          = "https://login.microsoftonline.com/"
   }
 }
 
@@ -91,6 +95,10 @@ resource "azurerm_linux_web_app" "webapp" {
   app_settings = {
     "AZURE_CLIENT_ID"            = azurerm_user_assigned_identity.webapp.client_id
     "DOCKER_REGISTRY_SERVER_URL" = "https://index.docker.io/v1"
-    "DOCKER_CUSTOM_IMAGE_NAME"   = "billymumby/addemowebapp:1.2.0"
+    "DOCKER_CUSTOM_IMAGE_NAME"   = "billymumby/addemowebapp:1.3.0"
+    "DownstreamApi__BaseUrl"     = "https://app-${var.project}-api-${var.env_code}-${var.location_code}.azurewebsites.net"
+    "DownstreamApi__Scope"       = "api://azure-ad-auth-api-${var.env_code}.net/api_access"
+    "DownstreamApi__IsEnabled"   = "True"
+
   }
 }
