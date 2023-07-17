@@ -47,6 +47,7 @@ try
         {
             options.DefaultPolicy = new AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
+                .RequireRole("Api.All")
                 .Build();
         });
 

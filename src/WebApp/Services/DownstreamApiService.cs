@@ -112,6 +112,12 @@ class DownstreamApiService : IDownstreamApiService
         };
 
         var accessToken = await _credential.GetTokenAsync(new TokenRequestContext(scopes));
+
+        // this should NEVER be done in a real production app, for demo purposes only.
+        if (_configuration.GetValue<bool>("DownstreamApi:IsTokenLoggingEnabled"))
+        {
+            _logger.LogInformation("Service token for downstream api: {Token}", accessToken.Token);
+        }
         
         _client.DefaultRequestHeaders.Accept.Clear();
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(BearerHeader, accessToken.Token);
