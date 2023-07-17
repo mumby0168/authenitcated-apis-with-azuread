@@ -11,7 +11,31 @@
 @if (Model.MessageForAuthenticatedUser is not null)
 {
     <div
-        class="text-center">
+        class="text-body">
+        <h4>@Model.MessageForAuthenticatedUser</h4>
+    </div>   
+}
+
+@if (Model.MessageForAuthenticatedUserWithReaderRole is not null)
+{
+    <div
+        class="text-body">
+        <h4>@Model.MessageForAuthenticatedUser</h4>
+    </div>   
+}
+
+@if (Model.MessageForAuthenticatedUserWithOwnerRole is not null)
+{
+    <div
+        class="text-body">
+        <h4>@Model.MessageForAuthenticatedUser</h4>
+    </div>   
+}
+
+@if (Model.MessageForAuthenticatedUserWithContributorRole is not null)
+{
+    <div
+        class="text-body">
         <h4>@Model.MessageForAuthenticatedUser</h4>
     </div>   
 }

@@ -25,9 +25,11 @@ public class DetailsModel : PageModel
 
     public string? MessageForAuthenticatedUser { get; set; }
 
-    public string? MessageForAuthenticatedUserWithUserRole { get; set; }
+    public string? MessageForAuthenticatedUserWithReaderRole { get; set; }
+    
+    public string? MessageForAuthenticatedUserWithContributorRole { get; set; }
 
-    public string? MessageForAuthenticatedUserWithAdminRole { get; set; }
+    public string? MessageForAuthenticatedUserWithOwnerRole { get; set; }
 
     public async Task<IActionResult> OnGet()
     {
@@ -47,24 +49,34 @@ public class DetailsModel : PageModel
             MessageForAuthenticatedUser = $"Hello {result.Principal.Identity?.Name}";    
         }
 
-        if (result.Principal.IsInRole("User"))
+        if (result.Principal.IsInRole("Reader"))
         {
             if (_configuration.GetValue<bool>("DownstreamApi:IsEnabled"))
             {
-                throw new NotImplementedException();
+                MessageForAuthenticatedUser = await _downstreamApiService.CallWebApiForReaderAsync();
             }
 
-            MessageForAuthenticatedUserWithUserRole = "You are in the User role";
+            MessageForAuthenticatedUserWithReaderRole = "You are in the User role";
         }
 
-        if (result.Principal.IsInRole("Admin"))
+        if (result.Principal.IsInRole("Contributor"))
         {
             if (_configuration.GetValue<bool>("DownstreamApi:IsEnabled"))
             {
-                throw new NotImplementedException();
+                MessageForAuthenticatedUser = await _downstreamApiService.CallWebApiForContributorAsync();
             }
 
-            MessageForAuthenticatedUserWithAdminRole = "You are in the Admin role";
+            MessageForAuthenticatedUserWithContributorRole = "You are in the Admin role";
+        }
+        
+        if (result.Principal.IsInRole("Owner"))
+        {
+            if (_configuration.GetValue<bool>("DownstreamApi:IsEnabled"))
+            {
+                MessageForAuthenticatedUser = await _downstreamApiService.CallWebApiForOwnerAsync();
+            }
+
+            MessageForAuthenticatedUserWithOwnerRole = "You are in the Admin role";
         }
 
         return Page();

@@ -43,7 +43,67 @@ class DownstreamApiService : IDownstreamApiService
             throw;
         }
     }
-    
+
+    public async Task<string> CallWebApiForReaderAsync()
+    {
+        try
+        {
+            var result = await AuthenticatedRequest(() => _client.GetAsync("api/v1/reader"));
+        
+            if (result.IsSuccessStatusCode)
+            {
+                return await result.Content.ReadAsStringAsync();
+            }
+
+            return $"Failed to call downstream api status code: {result.StatusCode} and response body: {await result.Content.ReadAsStringAsync()}";
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error calling downstream api for a reader message");
+            throw;
+        }
+    }
+
+    public async Task<string> CallWebApiForContributorAsync()
+    {
+        try
+        {
+            var result = await AuthenticatedRequest(() => _client.GetAsync("api/v1/contributor"));
+        
+            if (result.IsSuccessStatusCode)
+            {
+                return await result.Content.ReadAsStringAsync();
+            }
+
+            return $"Failed to call downstream api status code: {result.StatusCode} and response body: {await result.Content.ReadAsStringAsync()}";
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error calling downstream api for a contributor message");
+            throw;
+        }
+    }
+
+    public async Task<string> CallWebApiForOwnerAsync()
+    {
+        try
+        {
+            var result = await AuthenticatedRequest(() => _client.GetAsync("api/v1/owner"));
+        
+            if (result.IsSuccessStatusCode)
+            {
+                return await result.Content.ReadAsStringAsync();
+            }
+
+            return $"Failed to call downstream api status code: {result.StatusCode} and response body: {await result.Content.ReadAsStringAsync()}";
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error calling downstream api for a owner message");
+            throw;
+        }
+    }
+
     internal async Task<HttpResponseMessage> AuthenticatedRequest(Func<Task<HttpResponseMessage>> execute)
     {
         string [] scopes = {

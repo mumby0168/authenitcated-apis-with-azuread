@@ -66,6 +66,21 @@ try
             "api/v1/default",
             () => $"This is the default message {DateTime.UtcNow}")
         .RequireAuthorization();
+    
+    app.MapGet(
+            "api/v1/reader",
+            () => $"This is the reader message {DateTime.UtcNow}")
+        .RequireAuthorization();
+    
+    app.MapGet(
+            "api/v1/contributor",
+            () => $"This is the contributor message {DateTime.UtcNow}")
+        .RequireAuthorization();
+    
+    app.MapGet(
+            "api/v1/owner",
+            () => $"This is the owner message {DateTime.UtcNow}")
+        .RequireAuthorization();
 
     app.Run();
 }
