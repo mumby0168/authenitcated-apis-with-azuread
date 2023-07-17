@@ -1,4 +1,5 @@
 using Azure.Identity;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -16,7 +17,27 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Services.AddLogging();
+    builder.Services.AddApplicationInsightsTelemetry();
+    builder.Host.UseSerilog((_, serviceProvider, loggerConfiguration) =>
+    {
+        // write to application insights as trace logs
+        // recommended approach to re-use the same instance of TelemetryConfiguration as the AI SDK.
+        loggerConfiguration
+            .WriteTo
+            .ApplicationInsights(
+                serviceProvider.GetRequiredService<TelemetryConfiguration>(),
+                TelemetryConverter.Traces);
+
+        loggerConfiguration
+            .WriteTo
+            .Console();
+
+        // read serilog config block from IConfiguration
+        // reads things such as log levels and filter rules
+        loggerConfiguration
+            .ReadFrom
+            .Configuration(builder.Configuration);
+    });
 
     builder.Services.AddSingleton(new DefaultAzureCredential());
 
