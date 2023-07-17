@@ -51,7 +51,7 @@ resource "azurerm_linux_web_app" "api" {
   app_settings = {
     "AZURE_CLIENT_ID"                       = azurerm_user_assigned_identity.api.client_id
     "DOCKER_REGISTRY_SERVER_URL"            = "https://index.docker.io/v1"
-    "DOCKER_CUSTOM_IMAGE_NAME"              = "billymumby/addemoapi:0.0.2"
+    "DOCKER_CUSTOM_IMAGE_NAME"              = "billymumby/addemoapi:2.0.0"
     "ApplicationInsights__ConnectionString" = azurerm_application_insights.azure_ad_demo.connection_string
     "AzureAd__ClientId"                     = data.azuread_application.api.application_id
     "AzureAd__Audience"                     = "api://azure-ad-auth-api-${var.env_code}.net"
@@ -103,10 +103,10 @@ resource "azurerm_linux_web_app" "webapp" {
   app_settings = {
     "AZURE_CLIENT_ID"                       = azurerm_user_assigned_identity.webapp.client_id
     "DOCKER_REGISTRY_SERVER_URL"            = "https://index.docker.io/v1"
-    "DOCKER_CUSTOM_IMAGE_NAME"              = "billymumby/addemowebapp:2.0.0"
+    "DOCKER_CUSTOM_IMAGE_NAME"              = "billymumby/addemowebapp:3.1.1"
     "ApplicationInsights__ConnectionString" = azurerm_application_insights.azure_ad_demo.connection_string
     "DownstreamApi__BaseUrl"                = "https://app-${var.project}-api-${var.env_code}-${var.location_code}.azurewebsites.net"
-    "DownstreamApi__Scope"                  = "api://azure-ad-auth-api-${var.env_code}.net/api_access"
+    "DownstreamApi__Scope"                  = "api://azure-ad-auth-api-${var.env_code}.net"
     "DownstreamApi__IsEnabled"              = "True"
 
   }
